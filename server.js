@@ -18,7 +18,9 @@ io.on('connection', function (socket) {
       //online = online - 1;
      });
      
-   
+   socket.on('guess',function(guess){
+       socket.broadcast.emit('guess',guess);
+   });
 
   
     

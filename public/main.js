@@ -1,4 +1,23 @@
 var socket = io();
+
+var guessBox;
+
+var addGuess = function(guess){
+    $('#guesses ul').append( "<li>"+guess+"</li>" );
+};
+
+var onKeyDown = function(event) {
+    if (event.keyCode != 13) { // Enter
+        return;
+    }
+    addGuess(this.value);
+    socket.emit('guess',this.value);
+    this.value = '';
+    
+};
+
+socket.on('guess',addGuess);
+
 var pictionaryEvent = function(){
     
     var canvas, context;
@@ -47,8 +66,16 @@ var pictionary = function() {
         });
 };
 
+// var guessBroadcast = function(){
+    
+// } 
+
 $(document).ready(function() {
 
     pictionaryEvent();
     pictionary();
+    
+    guessBox = $('#guess input');
+    guessBox.on('keydown', onKeyDown);
+    
 });
