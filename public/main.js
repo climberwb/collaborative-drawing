@@ -5,6 +5,7 @@ var socket = io();
 var User = function(Id,word){
     this.Id = Id;
     this.word = word;
+ 
 }
 
 var player;
@@ -32,8 +33,12 @@ User.prototype.playGame = function(){
     ////////////////////////// GUESS BOX
     var guessBox;
     
-    var addGuess = function(guess){
+    var addGuess = function(guess,Id){
         $('#guesses ul').append( "<li>"+guess+"</li>" );
+        console.log(Id+'addGuess '+self.Id);
+        if(Id === self.Id){
+            $('#resetGame').show();
+        }
     };
     
     var onKeyDown = function(event) {
@@ -96,27 +101,48 @@ User.prototype.playGame = function(){
             });
     };
     
-    // var guessBroadcast = function(){
+    /////// reset game
+var resetGame = function(Id,word){
+    self.word = word;
+    var canvas = $('canvas');
+    var context = canvas[0].getContext('2d');
+    context.clearRect(0, 0, canvas[0].width, canvas[0].height);
+    $('#guesses li').hide();
+    console.log(self.Id,Id);
+    $(document).off();
+    $('#resetGame').off();
+    if(self.Id === Id){
+        $('#resetGame').hide();
+        console.log(word);
+    }else{
+      //  alert(word);
+    }
+     pictionaryEvent();
+        if(self.word !==null){ //remove conditional for collaborative drawing
+            pictionary();
+        }
+        // reset Game
+        $('#resetGame').on('click',function(){ socket.emit('resetGame',self.Id) });
+            socket.on('resetGame',resetGame);
+            guessBox = $('#guess input');
+            guessBox.on('keydown', onKeyDown);
         
-    // } 
-    
+       
+}
+    //////////
     $(document).ready(function() {
-        console.log(player,3);
+        console.log(player);
         
         pictionaryEvent();
         if(self.word !==null){ //remove conditional for collaborative drawing
             pictionary();
         }
-        $('#clearCanvas').on('click',function(){//TODO get this event to trigger with socket events
-                                                //after person wins. 
-                                                //TODO only show clar canvas button after a win to the winner.
-            var canvas = $('canvas');
-            var context = canvas[0].getContext('2d');
-            context.clearRect(0, 0, canvas[0].width, canvas[0].height);
-        });
-        guessBox = $('#guess input');
-        guessBox.on('keydown', onKeyDown);
+        // reset Game
+        $('#resetGame').on('click',function(){ socket.emit('resetGame',self.Id) });
+            socket.on('resetGame',resetGame);
+            guessBox = $('#guess input');
+            guessBox.on('keydown', onKeyDown);
         
-    });
+        });
 
 }
