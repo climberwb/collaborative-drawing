@@ -21,7 +21,7 @@ socket.on('person',setPlayer);
 User.prototype.playGame = function(){
     var self = this;
     ////////////////////////// Show word
-    if(this.word !== null){
+    if(this.word){
         console.log(this.word);
         $('#word span').append( this.word );
         $('#guess').hide();
@@ -104,13 +104,26 @@ User.prototype.playGame = function(){
     /////// reset game
 var resetGame = function(Id,word){
     self.word = word;
+    $('#word span').html("");
+    if(self.word){
+        $('#word span').append(self.word);
+        $('#word').show();
+        $('#guess').hide();
+    }else{
+        $('#word').hide();
+        $('#guess').show();
+    }
+    
+    $('canvas').remove();
+    $('#main').append('<canvas id=canvas></canvas>');
     var canvas = $('canvas');
+    
     var context = canvas[0].getContext('2d');
     context.clearRect(0, 0, canvas[0].width, canvas[0].height);
     $('#guesses li').hide();
     console.log(self.Id,Id);
     $(document).off();
-    $('#resetGame').off();
+    //$('#resetGame').off();
     if(self.Id === Id){
         $('#resetGame').hide();
         console.log(word);
@@ -122,17 +135,11 @@ var resetGame = function(Id,word){
             pictionary();
         }
         // reset Game
-        $('#resetGame').on('click',function(){ socket.emit('resetGame',self.Id) });
-            socket.on('resetGame',resetGame);
-            guessBox = $('#guess input');
-            guessBox.on('keydown', onKeyDown);
-        
-       
 }
     //////////
     $(document).ready(function() {
         console.log(player);
-        
+     // var initialGame = function(){  
         pictionaryEvent();
         if(self.word !==null){ //remove conditional for collaborative drawing
             pictionary();
@@ -144,5 +151,11 @@ var resetGame = function(Id,word){
             guessBox.on('keydown', onKeyDown);
         
         });
-
+    //} //TODO get this to select a new drawer
+        socket.on('disconnectReset',resetGame);
+    
+        // socket.on('disconnect', function() {
+        //     alert('disconnected from server; reconnecting...');
+        // });
 }
+

@@ -27,10 +27,10 @@ Game.prototype.incrementOrderId = function(){
     this.connectionOrderId++;
     return this.connectionOrderId;
 }
-Game.prototype.createPlayer = function(){
+Game.prototype.createPlayer = function(socket){
     var player;
     this.incrementOrderId();
-    player= new Player(this.connectionOrderId);
+    player= new Player(this.connectionOrderId,socket);
     console.log(player.Id);
     if(this.firstConnection && player.Id ===1){
         player.drawStatus = true;
@@ -70,9 +70,10 @@ Game.prototype.wordFind = function(){
     return this.word;
 }
 
-var Player = function(Id){
+var Player = function(Id,socket){
     this.Id = Id;
     this.drawStatus = false;
+    this.socket=socket;
 }
 // UNCOMMENT CODE BELOW AND COMMENT CODE ABOVE FOR OLD FUNCTIONALITY
 
@@ -115,7 +116,9 @@ var game = new Game();
 game.wordFind();
 
 io.on('connection', function (socket) {
-   var playerCreatedOnConnection = game.createPlayer();
+  
+   var playerCreatedOnConnection = game.createPlayer(socket);
+   
    playerCreatedOnConnection.drawStatus ? socket.emit('person',playerCreatedOnConnection.Id, game.word) : socket.emit('person',playerCreatedOnConnection.Id, null);
    
     socket.on('draw', function (coords) {
@@ -136,9 +139,27 @@ io.on('connection', function (socket) {
       socket.emit('resetGame',Id,game.word);
       socket.broadcast.emit('resetGame',Id,null);
     });
-
+    
     socket.on('disconnect', function() {
-        console.log('A user has disconnected');
+        console.log('before',game.players);
+        var playerStatus;
+        game.players.forEach(function(player,index){
+           
+           if(player.socket === socket){
+               playerStatus = player.drawStatus;
+               delete game.players.splice(index,index);
+               
+               return game.payers
+           } 
+        });
+        if(playerStatus){
+                   console.log(game,'game');
+                    socket.broadcast.emit('disconnectReset',game.players[0].Id,game.word);
+               }
+        console.log('after',game.players);
+        // game.player.forEach(function(player){
+            
+        // });
     });
 //   startGame(socket);
 //   socket.on('newGame',startGame);
