@@ -136,10 +136,50 @@ var resetGame = function(Id,word){
         }
         // reset Game
 }
+
+var disconnectReset = function(Id,word){
+    console.log('disconnnectReset: ',Id,self.Id);
+    if(Id === self.Id){
+        console.log('Inside if: disconnectReset');
+        self.word = word;
+        alert('the old drawer left you are the new drawer');
+        $('#word span').html("");
+        $('#word span').append(self.word);
+        $('#word').show();
+        $('#guess').hide();
+        
+        $('canvas').remove();
+        $('#main').append('<canvas id=canvas></canvas>');
+        var canvas = $('canvas');
+    
+        var context = canvas[0].getContext('2d');
+        context.clearRect(0, 0, canvas[0].width, canvas[0].height);
+        $('#guesses li').hide();
+        
+        $(document).off();
+        
+        pictionaryEvent();
+        pictionary();
+    }
+    
+   
+    
+    if(self.Id === Id){
+        $('#resetGame').hide();
+        console.log(word);
+    }else{
+     
+    }
+     pictionaryEvent();
+        if(self.word !==null){ //remove conditional for collaborative drawing
+            pictionary();
+        }
+        // reset Game
+}
     //////////
     $(document).ready(function() {
         console.log(player);
-     // var initialGame = function(){  
+ 
         pictionaryEvent();
         if(self.word !==null){ //remove conditional for collaborative drawing
             pictionary();
@@ -151,11 +191,8 @@ var resetGame = function(Id,word){
             guessBox.on('keydown', onKeyDown);
         
         });
-    //} //TODO get this to select a new drawer
-        socket.on('disconnectReset',resetGame);
+        socket.on('disconnectReset',disconnectReset);
     
-        // socket.on('disconnect', function() {
-        //     alert('disconnected from server; reconnecting...');
-        // });
+      
 }
 
